@@ -20,7 +20,7 @@
 </template>
 
 <script>
- /* eslint-disable-next-line padded-blocks */ 
+/* eslint-disable-next-line padded-blocks */
 import AboutPage from "./views/AboutPage/AboutPage.vue"
 import HomePage from "./views/HomePage/HomePage.vue"
 import LinkPage from "./views/LinkPage/LinkPage.vue"
@@ -45,7 +45,13 @@ export default {
 <style>
 :root {
     --dark: #212529;
+    --primary: #007bff;
+    --secondary: #6c757d;
+    --success: #28a745;
+    --info: #17a2b8;
     --warning: #ffc107;
+    --danger: #dc3545;
+    --light: #f8f9fa;
 }
 
 body {

@@ -1,43 +1,96 @@
 <template>
 <div class="table">
-    <h3 style="position: fixed; left: 5rem; color: black;">Dealer:</h3>
-    <div class="openCards">
-        <CardLayout class="card" v-for="card in caseCards" :key="card.value" :value="card.value" :suit="card.suit" />
-        <div class="totalValue" v-if="isGameStarted === true">{{ caseValue }}</div>
+    <div v-if="betAsker === false" style="display: flex;">
+        <TransitionGroup name="cardsUp" class="openCards" tag="div">
+            <CardLayout class="card" v-for="card in dealerCards" :key="card.value" :value="card.realValue" :suit="card.suit" />
+            <CardBack v-if="closedCard"/>
+            <div class="totalValue" v-if="isGameStarted">{{ dealerValue }}</div>
+        </TransitionGroup>
     </div>
-
-    <h1 class="result" v-if="gameOver === 1" style="background-color: green;box-shadow: 0 0 10rem 4rem green;">K I R A L</h1>
-    <h1 class="result" v-if="gameOver === 2" style="background-color: red;box-shadow: 0 0 10rem 4rem red;">E N A I</h1>
-    <h1 class="result" v-if="gameOver === 3" style="background-color: lightblue;box-shadow: 0 0 10rem 4rem lightblue;">B E R A B E R E</h1>
-    <div class="openCards">
-        <CardLayout class="card" v-for="card in playerCards" :key="card.value" :value="card.value" :suit="card.suit" />
-        <div class="totalValue" v-if="isGameStarted === true">{{ playerValue }}</div>
+    <transition>
+        <h1 class="result" v-if="gameOver === 1 && betAsker === false" style="background-color: green;box-shadow: 0 0 10rem 4rem green;">K I R A L</h1>
+        <h1 class="result" v-else-if="gameOver === 2 && betAsker === false" style="background-color: red;box-shadow: 0 0 10rem 4rem red;">E N A I</h1>
+        <h1 class="result" v-else-if="gameOver === 3 && betAsker === false" style="background-color: lightblue;box-shadow: 0 0 10rem 4rem lightblue;">B E R A B E R E</h1>
+    </transition>
+    <transition>
+        <div v-if="betAsker" style="background-color: var(--warning);padding: 1rem;padding-right: 3rem; width: 11rem;position: relative;border-top-right-radius: 4rem;">
+            <h2 style="text-align: center; margin: 0;">PLACE BET</h2>
+            <div style="color: var(--light);">
+                <input v-model="betValue" type="number" style="border: 0;margin-top: 0.5rem; font-size: 1.5rem;width: 100%; font-family: SamiraSkin30;" /><i style="position: absolute; right: 1rem; top: 33%;" class="fa-solid fa-coins"></i>
+            </div>
+            <button class="standart-bet-buttons" @click="start">ENTER</button>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; width:100%">
+                <div class="standart-bets">
+                    <small>%20</small>
+                    <button @click="betValue = wallet/5" class="standart-bet-buttons">{{ wallet/5 }}</button>
+                </div>
+                <div class="standart-bets">
+                    <small>%50</small>
+                    <button @click="betValue = wallet/2" class="standart-bet-buttons">{{ wallet/2 }}</button>
+                </div>
+                <div class="standart-bets">
+                    <small>%100</small>
+                    <button @click="betValue = wallet" class="standart-bet-buttons">{{ wallet }}</button>
+                </div>
+            </div>
+        </div>
+    </transition>
+    <div v-if="betAsker === false" style="display: flex;">
+        <TransitionGroup name="cardsDown" class="openCards" tag="div">
+            <CardLayout class="card" v-for="card in playerCards" :key="card.value" :value="card.realValue" :suit="card.suit" />
+            <div class="totalValue" v-if="isGameStarted">{{ playerValue }}</div>
+        </TransitionGroup>
     </div>
-    <h3 style="position: fixed; left: 5rem; bottom: 3rem; color: #004193;">Player:</h3>
+    <div class="money-container">
+        <div v-if="betValue !== ''" class="bet">{{ betValue }}<i class="fa-solid fa-coins"></i></div>
+        <div style="display: flex; align-items: center;">
+            <div class="wallet"> {{wallet}} <i class="fa-solid fa-coins"></i></div>
+            <div v-if="gameOver === 1" class="win">+{{ addedValue }}</div>
+        </div>
+    </div>
+    <div v-if="aceCheck" style="background-color: var(--warning); padding: 0.5rem;">
+        <h2 style="margin: 0;">Ace value?</h2>
+        <div>
+            <button class="ace-value" @click="selectAceValue(1)">1</button>
+            <button class="ace-value" @click="selectAceValue(11)">11</button>
+        </div>
+    </div>
     <div class="buttons">
         <div style="display: flex; flex-direction: column; align-items: center;">
             <button :disabled="gameOver !== 0" class="hit" v-if="isGameStarted" @click="hit">HIT</button>
             <button :disabled="gameOver !== 0" class="stand" style="margin-top: 0.5rem;" v-if="isGameStarted" @click="stand">STAND</button>
         </div>
-        <button class="new-game" @click="start">NEW GAME</button>
+        <button v-if="betAsker === false" class="new-game" @click="betAsker = true">NEW GAME</button>
     </div>
 </div>
 </template>
 
 <script>
 import CardLayout from '@/components/PlayingCards/CardLayout.vue';
+import CardBack from '@/components/PlayingCards/CardBack.vue';
+import {
+    ref
+} from 'vue';
+import "./style.css"
 export default {
     components: {
-        CardLayout
+        CardLayout,
+        CardBack,
     },
     data() {
         return {
             isGameStarted: false,
+            betAsker: true,
+            aceCheck: false,
+            closedCard: false,
             playerCards: [],
-            caseCards: [],
+            dealerCards: [],
             playerValue: 0,
-            caseValue: 0,
-            gameOver: 0,
+            dealerValue: 0,
+            gameOver: ref(0),
+            wallet: 1000,
+            betValue: "",
+            addedValue: 0,
         }
     },
     methods: {
@@ -48,200 +101,126 @@ export default {
             }
             this.$store.commit('removeCard', randomCard)
             return randomCard;
+            
         },
         start() {
-            this.clear();
-            for (let index = 0; index <= 1; index++) {
-                this.playerCards.push(this.getCard());
+            if (this.wallet === 0) {
+                alert("Out of money!");
+            } else if (this.betValue > this.wallet || this.betValue <= 0 || this.betValue === "") {
+                alert("Please enter a valid bet!");
+            } else {
+                this.wallet -= this.betValue;
+                this.playerCards.map(card => {
+                    if (card.realValue === "A") {
+                        card.value = 0;
+                    }
+                })
+                this.playerCards = [];
+                this.dealerCards = [];
+                this.playerValue = 0;
+                this.dealerValue = 0;
+                this.gameOver = 0;
+                this.addedValue = 0;
+                this.isGameStarted = false;
+                this.aceCheck = false;
+                this.betAsker = true;
+                this.$store.commit('resetDeck');
+                setTimeout(() => {
+                    for (let index = 0; index <= 1; index++) {
+                        this.playerCards.push(this.getCard());
+                    }
+                    this.dealerCards.push(this.getCard());
+                    this.computePlayerValue();
+                    this.computeDealerValue();
+                    this.dealerAce();
+                    this.isGameStarted = true;
+                    this.closedCard = true;
+                }, 500);
+                this.betAsker = false;
             }
-            this.caseCards.push(this.getCard());
-            this.computePlayerValue();
-            this.computeCaseValue();
-            this.isGameStarted = true;
-            if (this.playerValue === 21) {
-                this.stand();
-            }
+
         },
         hit() {
             this.playerCards.push(this.getCard());
             this.computePlayerValue();
             if (this.playerValue > 21) {
                 this.gameOver = 2;
+                this.betValue = "";
             } else if (this.playerValue === 21) {
                 this.stand();
             } else if (this.playerCards.length === 5) {
                 this.gameOver = 1;
+                this.wallet += this.betValue * 2.5;
+                this.addedValue = this.betValue * 2.5;
+                this.betValue = "";
             }
         },
         stand() {
-            while (this.caseValue < 17) {
-                this.caseCards.push(this.getCard());
-                this.computeCaseValue();
+            this.closedCard = false;
+            while (this.dealerValue < 17) {
+                this.dealerCards.push(this.getCard());
+                this.computeDealerValue();
+                this.dealerAce();
             }
-            if (this.caseValue > 21) {
+            if (this.dealerValue > 21) {
                 this.gameOver = 1;
+                this.wallet += this.betValue * 2;
+                this.addedValue = this.betValue * 2;
+                this.betValue = "";
             } else {
-                if (this.caseValue > this.playerValue) {
+                if (this.dealerValue > this.playerValue) {
                     this.gameOver = 2;
-                } else if (this.caseValue === this.playerValue) {
+                    this.betValue = "";
+                } else if (this.dealerValue === this.playerValue) {
                     this.gameOver = 3;
+                    this.wallet += this.betValue;
+                    this.betValue = "";
                 } else {
                     this.gameOver = 1;
+                    this.wallet += this.betValue * 2;
+                    this.addedValue = this.betValue * 2;
+                    this.betValue = "";
                 }
             }
-        },
-        clear() {
-            this.playerCards = [];
-            this.caseCards = [];
-            this.playerValue = 0;
-            this.caseValue = 0;
-            this.gameOver = 0;
-            this.isGameStarted = false;
-            this.$store.commit('resetDeck');
         },
         computePlayerValue() {
             this.playerValue = 0;
             for (let index = 0; index < this.playerCards.length; index++) {
-                this.playerCards.map(card => {
-                    if (card.realValue === "A" && this.playerValue === 10) {
-                        card.value = 11;
-                    }
-                });
+                if (this.playerCards[index].value === 0) {
+                    this.aceCheck = true;
+                }
                 this.playerValue += this.playerCards[index].value;
             }
         },
-        computeCaseValue() {
-            this.caseValue = 0;
-            for (let index = 0; index < this.caseCards.length; index++) {
-                this.caseCards.map(card => {
-                    if (card.realValue === "A" && this.caseValue === 10) {
-                        card.value = 11;
-                    }
-                });
-                this.caseValue += this.caseCards[index].value;
+        computeDealerValue() {
+            this.dealerValue = 0;
+            for (let index = 0; index < this.dealerCards.length; index++) {
+                this.dealerValue += this.dealerCards[index].value;
             }
         },
+        selectAceValue(value) {
+            let aceCardIndex = this.playerCards.findIndex(card => card.realValue === "A");
+            if (aceCardIndex !== -1) {
+                this.playerCards[aceCardIndex].value = value;
+                this.computePlayerValue();
+                if (this.playerValue === 21) {
+                    this.stand();
+                }
+            }
+            this.aceCheck = false;
+        },
+        dealerAce() {
+            this.dealerCards.forEach(card => {
+                if (card.value === 0) {
+                    if (this.dealerValue <= 10) {
+                        card.value = 11;
+                    } else {
+                        card.value = 1;
+                    }
+                    this.computeDealerValue();
+                }
+            })
+        }
     },
 }
 </script>
-
-<style scoped>
-.table {
-    background: linear-gradient(to top, #004193 50%, rgba(0, 0, 0, 0) 100%);
-    width: 100dvw;
-    height: 80dvh;
-    padding-bottom: 2rem;
-    border-bottom: 0.5rem solid midnightblue;
-    border-bottom-left-radius: 100%;
-    border-bottom-right-radius: 100%;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.openCards {
-    display: flex;
-    position: relative;
-}
-
-.card {
-    margin: 0.5rem;
-}
-
-.totalValue {
-    position: absolute;
-    right: -0.5rem;
-    top: -0.5rem;
-    width: 2rem;
-    height: 2rem;
-    background-color: orange;
-    color: purple;
-    font-weight: bold;
-    border: 1px solid var(--warning);
-    border-radius: 50%;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.buttons {
-    position: fixed;
-    right: 5rem;
-    bottom: 5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    height: 10rem;
-    width: 10rem;
-    border: 0;
-}
-
-.hit {
-    width: 5rem;
-    height: 5rem;
-    padding: 0.5rem;
-    border-radius: 50%;
-    border: 0.2rem white solid;
-    color: white;
-    background-color: #28A745;
-    font-weight: bold;
-    transition: 0.2s ease;
-}
-
-.hit:hover {
-    background-color: #218838;
-}
-
-.hit:active {
-    background-color: #175f26;
-}
-
-.stand {
-    background-color: #DC3545;
-    border: 0.2rem white solid;
-    color: white;
-    font-weight: bold;
-    padding: 0.5rem;
-    border-radius: 1rem;
-    width: 100%;
-    transition: 0.2s ease;
-}
-
-.stand:hover {
-    background-color: #c82333;
-}
-
-.stand:active {
-    background-color: #8a1924;
-}
-
-.new-game {
-    padding: 0.3rem;
-    background-color: #6C757D;
-    color: white;
-    border: 0;
-    margin-top: 3rem;
-    font-weight: bold;
-    border-radius: 2px;
-    transition: 0.2s ease;
-}
-
-.new-game:hover {
-    background-color: black;
-}
-
-.new-game:active {
-    background-color: rgb(255, 255, 255);
-    color: black;
-}
-
-.result {
-    padding: 1rem;
-    border-radius: 1rem;
-    z-index: 5;
-}
-</style>

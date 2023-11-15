@@ -1,0 +1,229 @@
+.table {
+    width: 90dvw;
+    height: 80dvh;
+    padding-bottom: 2rem;
+    background: linear-gradient(to top, blue 0%, rgba(0, 0, 0, 0) 100%);
+    border-radius: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.openCards {
+    display: flex;
+    position: relative;
+}
+
+.card {
+    margin: 0.5rem;
+}
+
+.totalValue {
+    position: absolute;
+    right: -0.5rem;
+    top: -0.5rem;
+    width: 2rem;
+    height: 2rem;
+    background-color: orange;
+    color: purple;
+    font-weight: bold;
+    border: 1px solid var(--warning);
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.buttons {
+    position: fixed;
+    right: 5rem;
+    bottom: 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    height: 10rem;
+    width: 10rem;
+    border: 0;
+}
+
+.hit {
+    width: 5rem;
+    height: 5rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    border: 0.2rem white solid;
+    color: white;
+    background-color: #28A745;
+    font-weight: bold;
+    transition: 0.2s ease;
+}
+
+.hit:hover {
+    background-color: #218838;
+}
+
+.hit:active {
+    background-color: #175f26;
+}
+
+.stand {
+    background-color: #DC3545;
+    border: 0.2rem white solid;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    width: 100%;
+    transition: 0.2s ease;
+}
+
+.stand:hover {
+    background-color: #c82333;
+}
+
+.stand:active {
+    background-color: #8a1924;
+}
+
+.new-game {
+    padding: 0.3rem;
+    background-color: #6C757D;
+    color: white;
+    border: 0;
+    margin-top: 3rem;
+    font-weight: bold;
+    border-radius: 2px;
+    transition: 0.2s ease;
+}
+
+.new-game:hover {
+    background-color: black;
+}
+
+.new-game:active {
+    background-color: rgb(255, 255, 255);
+    color: black;
+}
+
+.result {
+    padding: 1rem;
+    border-radius: 1rem;
+    z-index: 5;
+}
+
+.ace-value {
+    margin: 0;
+    width: 50%;
+    background-color: black;
+    color: white;
+    border: 0;
+    transition: 0.2s;
+}
+
+.ace-value:hover {
+    background-color: white;
+    color: black;
+}
+
+.ace-value:active {
+    background-color: grey;
+    color: wheat;
+}
+
+.money-container {
+    position: fixed;
+    left: 6rem;
+    bottom: 2rem;
+}
+
+.wallet {
+    background-color: var(--light);
+    padding: 0.5rem;
+    padding-left: 0.8rem;
+    border-radius: 1rem;
+    font-family: SamiraSkin30;
+    font-size: 1.5rem;
+}
+
+.bet {
+    background-color: var(--warning);
+    margin-bottom: 10rem;
+    text-align: center;
+    padding: 0.3rem;
+    border-radius: 1rem;
+    font-family: SamiraSkin30;
+    font-size: 3rem;
+    width: auto;
+}
+
+.win {
+    color: rgb(153, 255, 0);
+    margin-left: 0.5rem;
+    font-weight: bold;
+}
+
+.standart-bets {
+    background-color: white;
+    text-align: center;
+    font-size: small;
+}
+
+.standart-bet-buttons{
+    border: 0;
+    font-family: SamiraSkin30;
+    background-color: var(--dark);
+    color: white;
+    width: 100%;
+    margin-top: 0.3rem;
+    transition: 0.15s;
+}
+.standart-bet-buttons:hover{
+    background-color: var(--danger);
+}
+
+
+
+
+.v-enter-active,
+.v-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
+}
+
+.cardsDown-enter-active,
+.cardsDown-leave-active {
+    transition: all 0.5s;
+}
+
+.cardsDown-enter-from {
+    transform: translateY(3rem);
+    opacity: 0;
+}
+
+.cardsDown-leave-to {
+    transform: translateY(3rem);
+    opacity: 0;
+}
+
+.cardsUp-enter-active,
+.cardsUp-leave-active {
+    transition: all 0.5s;
+}
+
+.cardsUp-enter-from {
+    transform: translateY(-3rem);
+    opacity: 0;
+}
+
+.cardsUp-leave-to {
+    transform: translateY(-3rem);
+    opacity: 0;
+}

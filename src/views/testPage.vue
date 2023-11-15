@@ -1,15 +1,17 @@
 <template>
     <div>
-
+        <ca-rd value="" suit="levi"></ca-rd>
     </div>
 </template>
 
 <script>
-    export default {
-        
+import caRd from "@/components/PlayingCards/CardBack.vue"
+export default {
+    components: {
+        caRd
     }
+}
 </script>
 
-<style lang="scss" scoped>
-
+<style scoped>
 </style>
